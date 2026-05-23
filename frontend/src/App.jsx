@@ -71,13 +71,25 @@ const Header = ({ showHomeLink }) => {
 };
 
 const FileTree = ({ projectId }) => {
-    const { folders, documents, setCurrentDoc, t, currentDoc } = useAppContext();
+    const { folders, documents, setCurrentDoc, t, currentDoc, addDocument } = useAppContext();
     const projectFolders = folders.filter(f => f.id === parseInt(projectId));
+
+    const handleAddDocument = async (folderId) => {
+        const title = prompt(t('document_title_prompt') || 'Nuevo Documento');
+        if (title) {
+            await addDocument(title, '# ' + title, folderId);
+        }
+    };
 
     return (
         <aside className="sidebar">
-            <div className="sidebar-header">
+            <div className="sidebar-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3>{t('files_title')}</h3>
+                {projectFolders.length > 0 && (
+                    <button className="btn btn-icon btn-sm" onClick={() => handleAddDocument(projectFolders[0].id)}>
+                        <i className="fas fa-plus-circle"></i>
+                    </button>
+                )}
             </div>
             <div className="file-tree">
                 {projectFolders.map(folder => (
@@ -109,14 +121,37 @@ const DocViewer = () => {
 
     useEffect(() => {
         if (currentDoc) {
+            // Configure marked with mermaid support
+            const renderer = new marked.Renderer();
+            renderer.code = (code, language) => {
+                if (language === 'mermaid') {
+                    return `<pre class="mermaid">${code}</pre>`;
+                }
+                return `<pre><code class="language-${language}">${code}</code></pre>`;
+            };
+
             const cleanContent = (currentDoc.content || '').replace(/\\n/g, '\n');
-            setHtml(marked.parse(cleanContent));
+            const parsedHtml = marked(cleanContent, { renderer });
+            setHtml(parsedHtml);
         }
     }, [currentDoc]);
 
     useEffect(() => {
-        mermaid.initialize({ startOnLoad: false, theme: theme === 'dark' ? 'dark' : 'default' });
-        mermaid.contentLoaded();
+        if (html) {
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: theme === 'dark' ? 'dark' : 'default',
+                securityLevel: 'loose'
+            });
+            mermaid.contentLoaded();
+            // Force re-render of mermaid diagrams if they were missed
+            const mermaidElements = document.querySelectorAll('.mermaid');
+            if (mermaidElements.length > 0) {
+                mermaid.run({
+                    nodes: mermaidElements
+                }).catch(err => console.error('Mermaid run error:', err));
+            }
+        }
     }, [html, theme]);
 
     if (!currentDoc) return (

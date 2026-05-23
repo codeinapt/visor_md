@@ -56,16 +56,17 @@ export const AppProvider = ({ children }) => {
     const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
     const toggleMode = () => setMode(prev => prev === 'read' ? 'edit' : 'read');
 
-    const updateDocumentContent = async (id, newContent) => {
-        try {
-            // Update local state first for responsiveness
-            setDocuments(prev => prev.map(doc => doc.id === id ? { ...doc, content: newContent } : doc));
-            if (currentDoc?.id === id) setCurrentDoc({ ...currentDoc, content: newContent });
+    const updateDocumentContentLocal = (id, newContent) => {
+        setDocuments(prev => prev.map(doc => doc.id === id ? { ...doc, content: newContent } : doc));
+        if (currentDoc?.id === id) setCurrentDoc(prev => ({ ...prev, content: newContent }));
+    };
 
-            // In a real app, send to API. Assuming endpoint exists or will be fixed
-            // axios.put(`${import.meta.env.VITE_API_URL}/api/documents/${id}`, { content: newContent });
+    const saveDocument = async (id, content) => {
+        try {
+            await axios.put(`${import.meta.env.VITE_API_URL}/api/documents/${id}`, { content });
+            console.log('Document saved successfully');
         } catch (error) {
-            console.error('Error updating document:', error);
+            console.error('Error saving document:', error);
         }
     };
 
@@ -95,8 +96,8 @@ export const AppProvider = ({ children }) => {
         <AppContext.Provider value={{
             folders, documents, currentDoc, setCurrentDoc,
             theme, toggleTheme, language, setLanguage, t,
-            mode, toggleMode, searchIndex, updateDocumentContent,
-            addFolder, addDocument, fetchInitialData
+            mode, toggleMode, searchIndex, updateDocumentContent: updateDocumentContentLocal,
+            saveDocument, addFolder, addDocument, fetchInitialData
         }}>
             {children}
         </AppContext.Provider>

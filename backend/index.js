@@ -76,6 +76,21 @@ app.post('/api/documents', async (req, res) => {
     }
 });
 
+app.put('/api/documents/:id', async (req, res) => {
+    const { id } = req.params;
+    const { content } = req.body;
+    try {
+        const result = await db.query(
+            'UPDATE documents SET content = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
+            [content, id]
+        );
+        if (result.rows.length === 0) return res.status(404).json({ error: 'Document not found' });
+        res.json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });

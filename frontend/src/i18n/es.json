@@ -25,5 +25,6 @@
     "project_name_placeholder": "Nombre del proyecto...",
     "cancel": "Cancelar",
     "create": "Crear",
-    "back_to_home": "Volver al Inicio"
+    "back_to_home": "Volver al Inicio",
+    "document_title_prompt": "Introduce el título del nuevo documento:"
 }
