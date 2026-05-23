@@ -176,11 +176,14 @@ const DocViewer = () => {
 
     return (
         <div className="viewer-layout">
-            <article className="content-area">
-                <div className="markdown-body" dangerouslySetInnerHTML={{ __html: html }} />
-                {mode === 'edit' && <MarkdownEditor />}
+            <article className={`content-area ${mode === 'edit' ? 'edit-active' : ''}`}>
+                {mode === 'read' ? (
+                    <div className="markdown-body" dangerouslySetInnerHTML={{ __html: html }} />
+                ) : (
+                    <MarkdownEditor />
+                )}
             </article>
-            <IndexNavigation html={html} />
+            {mode === 'read' && <IndexNavigation html={html} />}
         </div>
     );
 };

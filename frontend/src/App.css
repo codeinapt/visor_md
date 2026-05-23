@@ -175,16 +175,27 @@
     color: var(--text-main);
 }
 
-.md-textarea {
+.editor-container {
     width: 100%;
-    height: 400px;
-    margin-top: 1rem;
-    padding: 1rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-pane {
+    height: 100%;
     background-color: var(--bg-panel);
-    color: var(--text-main);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    font-family: 'JetBrains Mono', monospace;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.monaco-wrapper {
+    flex: 1;
+    min-height: 500px;
+    /* Minimum height for Monaco */
 }
 
 /* Home Styles */
@@ -362,10 +373,21 @@
 
 .markdown-body {
     max-width: 1000px;
-    /* Increased for better horizontal view */
     margin: 0 auto;
     line-height: 1.7;
     color: var(--text-main);
+}
+
+.content-area.edit-active {
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.monaco-wrapper {
+    flex: 1;
+    width: 100%;
 }
 
 /* Ensure headings have IDs for IndexNavigation */
