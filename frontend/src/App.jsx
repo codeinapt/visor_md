@@ -115,7 +115,7 @@ const FileTree = ({ projectId }) => {
                                     style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                                 >
                                     <span><i className="fab fa-markdown"></i> {doc.title}</span>
-                                    {unsavedDocs.includes(doc.id) && (
+                                    {unsavedDocs?.includes(doc.id) && (
                                         <span className="unsaved-dot" title="Cambios sin guardar">●</span>
                                     )}
                                 </div>

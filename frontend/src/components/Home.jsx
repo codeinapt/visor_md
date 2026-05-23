@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 
 export const Home = () => {
-    const { folders, addFolder, t, theme } = useAppContext();
+    const { folders, addFolder, deleteFolder, t, theme } = useAppContext();
     const [newFolderName, setNewFolderName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
     const navigate = useNavigate();
@@ -15,7 +15,13 @@ export const Home = () => {
         if (folder) {
             setNewFolderName('');
             setIsCreating(false);
-            // Optionally navigate to the new project or just let it appear in the list
+        }
+    };
+
+    const handleDelete = async (e, id) => {
+        e.stopPropagation();
+        if (window.confirm(t('delete_project_confirm'))) {
+            await deleteFolder(id);
         }
     };
 
@@ -57,6 +63,13 @@ export const Home = () => {
             <div className="project-grid">
                 {folders.map(folder => (
                     <div key={folder.id} className="project-card" onClick={() => navigate(`/project/${folder.id}`)}>
+                        <button
+                            className="btn-delete-project"
+                            onClick={(e) => handleDelete(e, folder.id)}
+                            title={t('delete')}
+                        >
+                            <i className="fas fa-trash"></i>
+                        </button>
                         <div className="project-icon">
                             <i className="fas fa-folder-open"></i>
                         </div>

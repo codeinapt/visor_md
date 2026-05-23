@@ -104,12 +104,23 @@ export const AppProvider = ({ children }) => {
         }
     };
 
+    const deleteFolder = async (id) => {
+        try {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/folders/${id}`);
+            setFolders(prev => prev.filter(f => f.id !== id));
+            setDocuments(prev => prev.filter(d => d.folder_id !== id));
+            if (currentDoc?.folder_id === id) setCurrentDoc(null);
+        } catch (error) {
+            console.error('Error deleting folder:', error);
+        }
+    };
+
     return (
         <AppContext.Provider value={{
             folders, documents, currentDoc, setCurrentDoc,
             theme, toggleTheme, language, setLanguage, t,
             mode, toggleMode, searchIndex, updateDocumentContent: updateDocumentContentLocal,
-            saveDocument, addFolder, addDocument, fetchInitialData
+            saveDocument, addFolder, addDocument, fetchInitialData, deleteFolder, unsavedDocs
         }}>
             {children}
         </AppContext.Provider>

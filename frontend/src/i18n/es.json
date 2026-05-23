@@ -26,5 +26,7 @@
     "cancel": "Cancelar",
     "create": "Crear",
     "back_to_home": "Volver al Inicio",
-    "document_title_prompt": "Introduce el título del nuevo documento:"
+    "document_title_prompt": "Introduce el título del nuevo documento:",
+    "delete": "Eliminar",
+    "delete_project_confirm": "¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer y borrará todos sus documentos."
 }
