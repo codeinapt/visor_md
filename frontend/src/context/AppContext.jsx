@@ -57,23 +57,46 @@ export const AppProvider = ({ children }) => {
     const toggleMode = () => setMode(prev => prev === 'read' ? 'edit' : 'read');
 
     const updateDocumentContent = async (id, newContent) => {
-        // In a real app, we would call the API here.
-        // For now, update local state
-        setDocuments(prev => prev.map(doc => doc.id === id ? { ...doc, content: newContent } : doc));
-        if (currentDoc?.id === id) setCurrentDoc({ ...currentDoc, content: newContent });
+        try {
+            // Update local state first for responsiveness
+            setDocuments(prev => prev.map(doc => doc.id === id ? { ...doc, content: newContent } : doc));
+            if (currentDoc?.id === id) setCurrentDoc({ ...currentDoc, content: newContent });
 
-        // Update Search Index
-        const newIndex = documents.map(doc =>
-            doc.id === id ? { ...doc, content: newContent } : { id: doc.id, path: doc.title, content: doc.content }
-        );
-        dispatchSearch({ type: 'SET_INDEX', payload: newIndex });
+            // In a real app, send to API. Assuming endpoint exists or will be fixed
+            // axios.put(`${import.meta.env.VITE_API_URL}/api/documents/${id}`, { content: newContent });
+        } catch (error) {
+            console.error('Error updating document:', error);
+        }
+    };
+
+    const addFolder = async (name) => {
+        try {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/folders`, { name });
+            setFolders(prev => [...prev, res.data]);
+            return res.data;
+        } catch (error) {
+            console.error('Error adding folder:', error);
+        }
+    };
+
+    const addDocument = async (title, content, folderId) => {
+        try {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/documents`, {
+                title, content, folder_id: folderId
+            });
+            setDocuments(prev => [...prev, res.data]);
+            return res.data;
+        } catch (error) {
+            console.error('Error adding document:', error);
+        }
     };
 
     return (
         <AppContext.Provider value={{
             folders, documents, currentDoc, setCurrentDoc,
             theme, toggleTheme, language, setLanguage, t,
-            mode, toggleMode, searchIndex, updateDocumentContent
+            mode, toggleMode, searchIndex, updateDocumentContent,
+            addFolder, addDocument, fetchInitialData
         }}>
             {children}
         </AppContext.Provider>

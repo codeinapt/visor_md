@@ -1,21 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, useParams, Link } from 'react-router-dom';
 import { AppProvider, useAppContext } from './context/AppContext';
 import { marked } from 'marked';
 import mermaid from 'mermaid';
 import { GlobalSearch } from './components/GlobalSearch';
 import { IndexNavigation } from './components/IndexNavigation';
 import { MarkdownEditor } from './components/MarkdownEditor';
+import { Home } from './components/Home';
 import { exportProjectToPDF } from './utils/PDFService';
 import './App.css';
 
-const Header = () => {
+const Header = ({ showHomeLink }) => {
     const { theme, toggleTheme, t, setLanguage, language, mode, toggleMode, documents } = useAppContext();
+    const navigate = useNavigate();
 
     return (
         <header className="app-header">
             <div className="header-left">
-                <div className="logo-container">VisorMD V2</div>
+                {showHomeLink ? (
+                    <button className="btn btn-icon" onClick={() => navigate('/')}>
+                        <i className="fas fa-home"></i>
+                        <span>{t('back_to_home')}</span>
+                    </button>
+                ) : (
+                    <div className="logo-container">VisorMD V2</div>
+                )}
             </div>
 
             <div className="header-center">
@@ -61,15 +70,17 @@ const Header = () => {
     );
 };
 
-const FileTree = () => {
+const FileTree = ({ projectId }) => {
     const { folders, documents, setCurrentDoc, t, currentDoc } = useAppContext();
+    const projectFolders = folders.filter(f => f.id === parseInt(projectId));
+
     return (
         <aside className="sidebar">
             <div className="sidebar-header">
                 <h3>{t('files_title')}</h3>
             </div>
             <div className="file-tree">
-                {folders.map(folder => (
+                {projectFolders.map(folder => (
                     <div key={folder.id} className="folder">
                         <div className="folder-name">
                             <i className="fas fa-folder"></i> {folder.name}
@@ -98,7 +109,6 @@ const DocViewer = () => {
 
     useEffect(() => {
         if (currentDoc) {
-            // Fix literal \n strings that might come from the DB/Mock
             const cleanContent = (currentDoc.content || '').replace(/\\n/g, '\n');
             setHtml(marked.parse(cleanContent));
         }
@@ -127,13 +137,14 @@ const DocViewer = () => {
     );
 };
 
-const MainApp = () => {
+const ProjectViewer = () => {
+    const { id } = useParams();
     const { theme } = useAppContext();
     return (
         <div className={`app-root ${theme}-mode`}>
-            <Header />
+            <Header showHomeLink={true} />
             <main className="app-container">
-                <FileTree />
+                <FileTree projectId={id} />
                 <DocViewer />
             </main>
         </div>
@@ -145,7 +156,8 @@ function App() {
         <AppProvider>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<MainApp />} />
+                    <Route path="/" element={<Home />} />
+                    <Route path="/project/:id" element={<ProjectViewer />} />
                 </Routes>
             </BrowserRouter>
         </AppProvider>

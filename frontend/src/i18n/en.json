@@ -18,5 +18,12 @@
     "export_current": "Export current file",
     "export_all": "Export full project",
     "no_results": "No results found.",
-    "line": "Line"
+    "line": "Line",
+    "my_projects": "My Projects",
+    "new_project": "New Project",
+    "create_new_project": "Create New Project",
+    "project_name_placeholder": "Project name...",
+    "cancel": "Cancel",
+    "create": "Create",
+    "back_to_home": "Back to Home"
 }

@@ -18,5 +18,12 @@
     "export_current": "Exportar archivo actual",
     "export_all": "Exportar proyecto completo",
     "no_results": "No se encontraron coincidencias.",
-    "line": "Línea"
+    "line": "Línea",
+    "my_projects": "Mis Proyectos",
+    "new_project": "Nuevo Proyecto",
+    "create_new_project": "Crear Nuevo Proyecto",
+    "project_name_placeholder": "Nombre del proyecto...",
+    "cancel": "Cancelar",
+    "create": "Crear",
+    "back_to_home": "Volver al Inicio"
 }

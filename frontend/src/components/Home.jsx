@@ -1,0 +1,72 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAppContext } from '../context/AppContext';
+
+export const Home = () => {
+    const { folders, addFolder, t, theme } = useAppContext();
+    const [newFolderName, setNewFolderName] = useState('');
+    const [isCreating, setIsCreating] = useState(false);
+    const navigate = useNavigate();
+
+    const handleCreateFolder = async (e) => {
+        e.preventDefault();
+        if (!newFolderName.trim()) return;
+        const folder = await addFolder(newFolderName);
+        if (folder) {
+            setNewFolderName('');
+            setIsCreating(false);
+            // Optionally navigate to the new project or just let it appear in the list
+        }
+    };
+
+    return (
+        <div className={`home-container ${theme}-mode`}>
+            <header className="home-header">
+                <h1>{t('my_projects')}</h1>
+                <button className="btn btn-primary" onClick={() => setIsCreating(true)}>
+                    <i className="fas fa-plus"></i> {t('new_project')}
+                </button>
+            </header>
+
+            {isCreating && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>{t('create_new_project')}</h3>
+                        <form onSubmit={handleCreateFolder}>
+                            <input
+                                type="text"
+                                value={newFolderName}
+                                onChange={(e) => setNewFolderName(e.target.value)}
+                                placeholder={t('project_name_placeholder')}
+                                className="input-text"
+                                autoFocus
+                            />
+                            <div className="modal-actions">
+                                <button type="button" className="btn" onClick={() => setIsCreating(false)}>
+                                    {t('cancel')}
+                                </button>
+                                <button type="submit" className="btn btn-primary">
+                                    {t('create')}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            <div className="project-grid">
+                {folders.map(folder => (
+                    <div key={folder.id} className="project-card" onClick={() => navigate(`/project/${folder.id}`)}>
+                        <div className="project-icon">
+                            <i className="fas fa-folder-open"></i>
+                        </div>
+                        <div className="project-info">
+                            <h3>{folder.name}</h3>
+                            <p>{folder.created_at ? new Date(folder.created_at).toLocaleDateString() : ''}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};

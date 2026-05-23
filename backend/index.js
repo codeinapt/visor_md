@@ -50,6 +50,19 @@ app.get('/api/documents', async (req, res) => {
     }
 });
 
+app.post('/api/folders', async (req, res) => {
+    const { name } = req.body;
+    try {
+        const result = await db.query(
+            'INSERT INTO folders (name) VALUES ($1) RETURNING *',
+            [name]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.post('/api/documents', async (req, res) => {
     const { title, content, folder_id } = req.body;
     try {
