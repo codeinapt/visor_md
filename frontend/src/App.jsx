@@ -134,36 +134,37 @@ const DocViewer = () => {
 
     useEffect(() => {
         if (currentDoc) {
-            // Configure marked with mermaid support
-            const renderer = new marked.Renderer();
-            renderer.code = (code, language) => {
-                if (language === 'mermaid') {
-                    return `<pre class="mermaid">${code}</pre>`;
+            const renderer = {
+                code(code, language) {
+                    if (language === 'mermaid') {
+                        return `<pre class="mermaid">${code}</pre>`;
+                    }
+                    return `<pre><code class="language-${language || 'text'}">${code}</code></pre>`;
                 }
-                return `<pre><code class="language-${language}">${code}</code></pre>`;
             };
 
-            const cleanContent = (currentDoc.content || '').replace(/\\n/g, '\n');
-            const parsedHtml = marked(cleanContent, { renderer });
-            setHtml(parsedHtml);
+            marked.use({ renderer });
+            const content = currentDoc.content || '';
+            const cleanContent = content.replace(/\\n/g, '\n');
+            setHtml(marked.parse(cleanContent));
         }
     }, [currentDoc]);
 
     useEffect(() => {
         if (html) {
-            mermaid.initialize({
-                startOnLoad: false,
-                theme: theme === 'dark' ? 'dark' : 'default',
-                securityLevel: 'loose'
-            });
-            mermaid.contentLoaded();
-            // Force re-render of mermaid diagrams if they were missed
-            const mermaidElements = document.querySelectorAll('.mermaid');
-            if (mermaidElements.length > 0) {
-                mermaid.run({
-                    nodes: mermaidElements
-                }).catch(err => console.error('Mermaid run error:', err));
-            }
+            const timer = setTimeout(() => {
+                mermaid.initialize({
+                    startOnLoad: false,
+                    theme: theme === 'dark' ? 'dark' : 'default',
+                    securityLevel: 'loose'
+                });
+                mermaid.contentLoaded();
+                const mermaidElements = document.querySelectorAll('.mermaid');
+                if (mermaidElements.length > 0) {
+                    mermaid.run({ nodes: mermaidElements }).catch(err => console.error('Mermaid error:', err));
+                }
+            }, 100);
+            return () => clearTimeout(timer);
         }
     }, [html, theme]);
 
