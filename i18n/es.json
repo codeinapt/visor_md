@@ -1,0 +1,22 @@
+{
+    "load_file": "Cargar Archivo",
+    "load_dir": "Cargar Directorio",
+    "search_placeholder": "Buscar en la documentación...",
+    "mode_read": "Modo Lectura",
+    "mode_edit": "Modo Editor",
+    "generate_pdf": "Generar PDF",
+    "files_title": "Archivos",
+    "empty_files": "Carga archivos para comenzar",
+    "welcome_title": "Bienvenido a VisorMD V2",
+    "welcome_desc": "Selecciona un archivo del árbol lateral o carga un nuevo proyecto para empezar.",
+    "index_title": "Índice",
+    "editor_title": "Editor",
+    "preview_title": "Vista Previa",
+    "save": "Guardar",
+    "search_results": "Resultados de búsqueda",
+    "pdf_options": "Opciones de Exportación PDF",
+    "export_current": "Exportar archivo actual",
+    "export_all": "Exportar proyecto completo",
+    "no_results": "No se encontraron coincidencias.",
+    "line": "Línea"
+}

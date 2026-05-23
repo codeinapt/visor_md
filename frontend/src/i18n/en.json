@@ -1,0 +1,22 @@
+{
+    "load_file": "Load File",
+    "load_dir": "Load Directory",
+    "search_placeholder": "Search documentation...",
+    "mode_read": "Read Mode",
+    "mode_edit": "Editor Mode",
+    "generate_pdf": "Generate PDF",
+    "files_title": "Files",
+    "empty_files": "Load files to get started",
+    "welcome_title": "Welcome to VisorMD V2",
+    "welcome_desc": "Select a file from the sidebar or load a new project to start.",
+    "index_title": "Index",
+    "editor_title": "Editor",
+    "preview_title": "Preview",
+    "save": "Save",
+    "search_results": "Search Results",
+    "pdf_options": "PDF Export Options",
+    "export_current": "Export current file",
+    "export_all": "Export full project",
+    "no_results": "No results found.",
+    "line": "Line"
+}

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisorMD V2 - Documentación Técnica</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Libraries CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dark-mode" data-lang="es">
+    <header class="app-header">
+        <div class="header-left">
+            <div class="logo-container" id="logoContainer">
+                <img src="assets/images/placeholder-logo.png" alt="Logo" id="projectLogo" class="project-logo">
+                <span id="projectNameText">VisorMD V2</span>
+            </div>
+            <div class="file-actions">
+                <label for="fileInput" class="btn btn-secondary" title="Cargar Archivo">
+                    <i class="fas fa-file-upload"></i>
+                    <span data-i18n="load_file">Cargar Archivo</span>
+                </label>
+                <input type="file" id="fileInput" hidden accept=".md">
+                
+                <label for="dirInput" class="btn btn-secondary" title="Cargar Directorio">
+                    <i class="fas fa-folder-open"></i>
+                    <span data-i18n="load_dir">Cargar Directorio</span>
+                </label>
+                <input type="file" id="dirInput" hidden webkitdirectory directory multiple>
+            </div>
+        </div>
+        
+        <div class="header-center">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="globalSearch" placeholder="Buscar en la documentación..." data-i18n-placeholder="search_placeholder">
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <div class="mode-selectors">
+                <select id="langSelector" class="select-input">
+                    <option value="es">ES</option>
+                    <option value="en">EN</option>
+                </select>
+                
+                <button id="modeToggle" class="btn btn-icon" title="Cambiar Modo">
+                    <i class="fas fa-book-open"></i>
+                    <span class="mode-text" data-i18n="mode_read">Modo Lectura</span>
+                </button>
+                
+                <button id="themeToggle" class="btn btn-icon" title="Cambiar Tema">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+            
+            <button id="generatePDF" class="btn btn-primary">
+                <i class="fas fa-file-pdf"></i>
+                <span data-i18n="generate_pdf">Generar PDF</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="app-container">
+        <!-- Sidebar: File Tree -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3 data-i18n="files_title">Archivos</h3>
+            </div>
+            <nav class="file-tree" id="fileTreeContainer">
+                <div class="empty-state" data-i18n="empty_files">Carga archivos para comenzar</div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <section class="content-area" id="contentArea">
+            <!-- Reader Mode View -->
+            <article class="markdown-viewer" id="markdownViewer">
+                <div id="viewerContent" class="markdown-body">
+                    <!-- Rendered content here -->
+                    <div class="welcome-screen">
+                        <i class="fas fa-file-code welcome-icon"></i>
+                        <h1 data-i18n="welcome_title">Bienvenido a VisorMD V2</h1>
+                        <p data-i18n="welcome_desc">Selecciona un archivo del árbol lateral o carga un nuevo proyecto para empezar.</p>
+                    </div>
+                </div>
+                
+                <!-- Floating Table of Contents -->
+                <nav class="document-index" id="documentIndex">
+                    <h4 data-i18n="index_title">Índice</h4>
+                    <ul id="indexList"></ul>
+                </nav>
+            </article>
+
+            <!-- Editor Mode View (Hidden by default) -->
+            <div class="editor-container hidden" id="editorContainer">
+                <div class="editor-pane">
+                    <div class="pane-header">
+                        <span data-i18n="editor_title">Editor</span>
+                        <div class="editor-actions">
+                            <button id="saveChanges" class="btn btn-sm btn-success">
+                                <i class="fas fa-save"></i> <span data-i18n="save">Guardar</span>
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="markdownEditor"></textarea>
+                </div>
+                <div class="preview-pane">
+                    <div class="pane-header">
+                        <span data-i18n="preview_title">Vista Previa</span>
+                    </div>
+                    <div id="editorPreview" class="markdown-body"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Search Results Modal -->
+    <div id="searchModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="search_results">Resultados de búsqueda</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div id="searchResultsList" class="search-results-list"></div>
+        </div>
+    </div>
+
+    <!-- PDF Options Modal -->
+    <div id="pdfModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="pdf_options">Opciones de Exportación PDF</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="pdf-options-body">
+                <button id="exportCurrent" class="btn btn-secondary btn-block">
+                    <i class="fas fa-file"></i> <span data-i18n="export_current">Exportar archivo actual</span>
+                </button>
+                <button id="exportAll" class="btn btn-primary btn-block">
+                    <i class="fas fa-copy"></i> <span data-i18n="export_all">Exportar proyecto completo</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script>
+    
+    <!-- Application Modules -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
