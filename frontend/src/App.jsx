@@ -10,9 +10,16 @@ import { Home } from './components/Home';
 import { exportProjectToPDF } from './utils/PDFService';
 import './App.css';
 
-const Header = ({ showHomeLink }) => {
-    const { theme, toggleTheme, t, setLanguage, language, mode, toggleMode, documents } = useAppContext();
+const Header = ({ showHomeLink, projectId }) => {
+    const { theme, toggleTheme, t, setLanguage, language, mode, toggleMode, documents, folders } = useAppContext();
     const navigate = useNavigate();
+
+    const handleExportPDF = () => {
+        const project = folders.find(f => f.id === parseInt(projectId));
+        const projectName = project ? project.name : "VisorMD Project";
+        const projectDocs = documents.filter(d => d.folder_id === parseInt(projectId));
+        exportProjectToPDF(projectDocs, projectName, t);
+    };
 
     return (
         <header className="app-header">
@@ -61,10 +68,12 @@ const Header = ({ showHomeLink }) => {
                     <i className={`fas fa-${theme === 'dark' ? 'moon' : 'sun'}`}></i>
                 </button>
 
-                <button className="btn btn-primary" onClick={() => exportProjectToPDF(documents, "VisorMD Project", t)}>
-                    <i className="fas fa-file-pdf"></i>
-                    <span>{t('generate_pdf')}</span>
-                </button>
+                {projectId && (
+                    <button className="btn btn-primary" onClick={handleExportPDF}>
+                        <i className="fas fa-file-pdf"></i>
+                        <span>{t('generate_pdf')}</span>
+                    </button>
+                )}
             </div>
         </header>
     );
@@ -174,10 +183,20 @@ const DocViewer = () => {
 
 const ProjectViewer = () => {
     const { id } = useParams();
-    const { theme } = useAppContext();
+    const { theme, documents, setCurrentDoc } = useAppContext();
+
+    useEffect(() => {
+        const projectDocs = documents.filter(d => d.folder_id === parseInt(id));
+        if (projectDocs.length > 0) {
+            setCurrentDoc(projectDocs[0]);
+        } else {
+            setCurrentDoc(null);
+        }
+    }, [id, documents]);
+
     return (
         <div className={`app-root ${theme}-mode`}>
-            <Header showHomeLink={true} />
+            <Header showHomeLink={true} projectId={id} />
             <main className="app-container">
                 <FileTree projectId={id} />
                 <DocViewer />

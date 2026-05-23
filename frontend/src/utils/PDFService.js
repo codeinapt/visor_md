@@ -1,12 +1,22 @@
 import html2pdf from 'html2pdf.js';
 import { marked } from 'marked';
+import mermaid from 'mermaid';
 
 export const exportProjectToPDF = async (files, projectName, t) => {
+    // Hidden container for rendering
     const tempContainer = document.createElement('div');
-    tempContainer.className = 'markdown-body pdf-export';
-    tempContainer.style.padding = '1cm';
-    tempContainer.style.backgroundColor = 'white';
-    tempContainer.style.color = 'black';
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.top = '0';
+    tempContainer.style.width = '21cm'; // A4 width
+    document.body.appendChild(tempContainer);
+
+    const renderBox = document.createElement('div');
+    renderBox.className = 'markdown-body pdf-export';
+    renderBox.style.padding = '1cm';
+    renderBox.style.backgroundColor = 'white';
+    renderBox.style.color = 'black';
+    tempContainer.appendChild(renderBox);
 
     // Cover Page
     const cover = document.createElement('div');
@@ -32,13 +42,13 @@ export const exportProjectToPDF = async (files, projectName, t) => {
     const meta = document.createElement('div');
     meta.className = 'pdf-metadata';
     meta.innerHTML = `
-        <p><strong>${t('responsable')}:</strong> Equipo de Desarrollo VisorMD</p>
-        <p><strong>${t('fecha_generacion')}:</strong> ${new Date().toLocaleDateString()}</p>
-        <p><strong>${t('total_archivos')}:</strong> ${files.length}</p>
+        <p><strong>Responsable:</strong> Equipo de Desarrollo VisorMD</p>
+        <p><strong>Fecha de Generación:</strong> ${new Date().toLocaleDateString()}</p>
+        <p><strong>Total de Archivos:</strong> ${files.length}</p>
     `;
     cover.appendChild(meta);
-    tempContainer.appendChild(cover);
-    tempContainer.appendChild(createPageBreak());
+    renderBox.appendChild(cover);
+    renderBox.appendChild(createPageBreak());
 
     // TOC
     const toc = document.createElement('div');
@@ -58,10 +68,18 @@ export const exportProjectToPDF = async (files, projectName, t) => {
         `;
         toc.appendChild(item);
     });
-    tempContainer.appendChild(toc);
-    tempContainer.appendChild(createPageBreak());
+    renderBox.appendChild(toc);
+    renderBox.appendChild(createPageBreak());
 
     // Content
+    const renderer = new marked.Renderer();
+    renderer.code = (code, language) => {
+        if (language === 'mermaid') {
+            return `<pre class="mermaid">${code}</pre>`;
+        }
+        return `<pre><code class="language-${language}">${code}</code></pre>`;
+    };
+
     for (const file of files) {
         const section = document.createElement('div');
         section.className = 'pdf-section';
@@ -73,12 +91,19 @@ export const exportProjectToPDF = async (files, projectName, t) => {
         section.appendChild(titleHeader);
 
         const contentDiv = document.createElement('div');
-        contentDiv.innerHTML = marked.parse(file.content || '');
+        const cleanContent = (file.content || '').replace(/\\n/g, '\n');
+        contentDiv.innerHTML = marked(cleanContent, { renderer });
         section.appendChild(contentDiv);
 
-        tempContainer.appendChild(section);
-        tempContainer.appendChild(createPageBreak());
+        renderBox.appendChild(section);
+        renderBox.appendChild(createPageBreak());
     }
+
+    // Process Mermaid in the shadow DOM
+    mermaid.initialize({ startOnLoad: false, theme: 'default', securityLevel: 'loose' });
+    await mermaid.run({
+        nodes: renderBox.querySelectorAll('.mermaid')
+    });
 
     const options = {
         margin: [1, 1, 1, 1],
@@ -89,7 +114,11 @@ export const exportProjectToPDF = async (files, projectName, t) => {
         pagebreak: { mode: 'css', after: '.page-break' }
     };
 
-    html2pdf().from(tempContainer).set(options).save();
+    try {
+        await html2pdf().from(renderBox).set(options).save();
+    } finally {
+        document.body.removeChild(tempContainer);
+    }
 };
 
 const createPageBreak = () => {
