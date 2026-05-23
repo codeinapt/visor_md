@@ -56,17 +56,29 @@ export const AppProvider = ({ children }) => {
     const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
     const toggleMode = () => setMode(prev => prev === 'read' ? 'edit' : 'read');
 
+    const [unsavedDocs, setUnsavedDocs] = useState([]);
+
     const updateDocumentContentLocal = (id, newContent) => {
         setDocuments(prev => prev.map(doc => doc.id === id ? { ...doc, content: newContent } : doc));
         if (currentDoc?.id === id) setCurrentDoc(prev => ({ ...prev, content: newContent }));
+
+        // Add to unsaved if not already there
+        if (!unsavedDocs.includes(id)) {
+            setUnsavedDocs(prev => [...prev, id]);
+        }
     };
 
     const saveDocument = async (id, content) => {
         try {
-            await axios.put(`${import.meta.env.VITE_API_URL}/api/documents/${id}`, { content });
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            await axios.put(`${apiUrl}/api/documents/${id}`, { content });
+
+            // Remove from unsaved on success
+            setUnsavedDocs(prev => prev.filter(docId => docId !== id));
             console.log('Document saved successfully');
         } catch (error) {
             console.error('Error saving document:', error);
+            alert('Error al guardar el documento. Por favor, verifica la conexión con el servidor.');
         }
     };
 

@@ -391,6 +391,27 @@
     font-size: 0.85rem;
 }
 
+.unsaved-dot {
+    color: var(--accent);
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.4;
+    }
+}
+
 /* Responsive Adjustments */
 @media (max-width: 1200px) {
     .document-index {

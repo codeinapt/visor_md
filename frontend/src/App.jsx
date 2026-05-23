@@ -80,7 +80,7 @@ const Header = ({ showHomeLink, projectId }) => {
 };
 
 const FileTree = ({ projectId }) => {
-    const { folders, documents, setCurrentDoc, t, currentDoc, addDocument } = useAppContext();
+    const { folders, documents, setCurrentDoc, t, currentDoc, addDocument, unsavedDocs } = useAppContext();
     const projectFolders = folders.filter(f => f.id === parseInt(projectId));
 
     const handleAddDocument = async (folderId) => {
@@ -112,8 +112,12 @@ const FileTree = ({ projectId }) => {
                                     key={doc.id}
                                     className={`file-item ${currentDoc?.id === doc.id ? 'active' : ''}`}
                                     onClick={() => setCurrentDoc(doc)}
+                                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                                 >
-                                    <i className="fab fa-markdown"></i> {doc.title}
+                                    <span><i className="fab fa-markdown"></i> {doc.title}</span>
+                                    {unsavedDocs.includes(doc.id) && (
+                                        <span className="unsaved-dot" title="Cambios sin guardar">●</span>
+                                    )}
                                 </div>
                             ))}
                         </div>
