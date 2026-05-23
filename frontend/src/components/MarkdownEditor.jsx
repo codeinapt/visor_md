@@ -1,13 +1,14 @@
 import React from 'react';
+import Editor from '@monaco-editor/react';
 import { useAppContext } from '../context/AppContext';
 
 export const MarkdownEditor = () => {
-    const { currentDoc, updateDocumentContent, t } = useAppContext();
+    const { currentDoc, updateDocumentContent, saveDocument, t, theme } = useAppContext();
 
     if (!currentDoc) return null;
 
-    const handleChange = (e) => {
-        updateDocumentContent(currentDoc.id, e.target.value);
+    const handleEditorChange = (value) => {
+        updateDocumentContent(currentDoc.id, value || '');
     };
 
     return (
@@ -19,11 +20,22 @@ export const MarkdownEditor = () => {
                         <i className="fas fa-save"></i> {t('save')}
                     </button>
                 </div>
-                <textarea
-                    className="md-textarea"
-                    value={currentDoc.content}
-                    onChange={handleChange}
-                />
+                <div className="monaco-wrapper" style={{ height: 'calc(100% - 40px)', borderTop: '1px solid var(--border-color)' }}>
+                    <Editor
+                        height="100%"
+                        defaultLanguage="markdown"
+                        theme={theme === 'dark' ? 'vs-dark' : 'light'}
+                        value={currentDoc.content}
+                        onChange={handleEditorChange}
+                        options={{
+                            minimap: { enabled: false },
+                            fontSize: 14,
+                            wordWrap: 'on',
+                            automaticLayout: true,
+                            scrollBeyondLastLine: false,
+                        }}
+                    />
+                </div>
             </div>
         </div>
     );
